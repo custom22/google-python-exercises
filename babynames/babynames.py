@@ -33,6 +33,20 @@ Suggested milestones for incremental development:
  -Build the [year, 'name rank', ... ] list and print it
  -Fix main() to use the extract_names list
 """
+def extract_year(filename):
+  inputfile = open(filename, 'rU')
+  for line in inputfile:
+    match_year = re.search(r'(Popularity in )(\d\d\d\d)', line)
+    if match_year:
+      return match_year(2)
+      inputfile.close()
+      break
+
+def build_rank(filename):
+  inputfile = open(filename, 'rU')
+  for line in inputfile:
+    match_rank = re.search(r'<td>\d+', line)
+    match_name = re.search(r'Popularity in \d\d\d\d', line)
 
 def extract_names(filename):
   """
