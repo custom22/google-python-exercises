@@ -33,50 +33,84 @@ Suggested milestones for incremental development:
  -Build the [year, 'name rank', ... ] list and print it
  -Fix main() to use the extract_names list
 """
-def extract_year(filename):
-  inputfile = open(filename, 'rU')
-  for line in inputfile:
-    match_year = re.search(r'(Popularity in )(\d\d\d\d)', line)
-    if match_year:
-      return match_year(2)
-      inputfile.close()
-      break
 
-def build_rank(filename):
-  inputfile = open(filename, 'rU')
-  for line in inputfile:
-    match_rank = re.search(r'<td>\d+', line)
-    match_name = re.search(r'Popularity in \d\d\d\d', line)
+
+def return_year(filename):
+    inputfile = open(filename, 'rU')
+    for line in inputfile:
+        match_year = re.search(r'Popularity\sin\s(\d\d\d\d)', line)
+        if match_year:
+            return match_year.group(1)
+            inputfile.close()
+            #print match_year.group(1)
+            break
+
+
+def build_rank_name(filename):
+    dict_rank_name = {}
+    inputfile = open(filename, 'rU')
+    for line in inputfile:
+        match_rank_name = re.search(r'<td>(\d+)</td><td>(\w+)</td><td>(\w+)</td>', line)
+        if match_rank_name:
+          # evaluate boys name
+          if match_rank_name.group(2) in dict_rank_name and dict_rank_name[match_rank_name.group(2)] > match_rank_name.group(1):
+            dict_rank_name[match_rank_name.group(2)] = match_rank_name.group(1)
+          else:
+            dict_rank_name[match_rank_name.group(2)] = match_rank_name.group(1)
+          # evaluate girls name
+          if match_rank_name.group(3) in dict_rank_name and dict_rank_name[match_rank_name.group(3)] > match_rank_name.group(1):
+            dict_rank_name[match_rank_name.group(3)] = match_rank_name.group(1)
+          else:
+            dict_rank_name[match_rank_name.group(3)] = match_rank_name.group(1)
+    inputfile.close()
+    return dict_rank_name
+
 
 def extract_names(filename):
-  """
-  Given a file name for baby.html, returns a list starting with the year string
-  followed by the name-rank strings in alphabetical order.
-  ['2006', 'Aaliyah 91', Aaron 57', 'Abagail 895', ' ...]
-  """
-  # +++your code here+++
-  return
+    """
+    Given a file name for baby.html, returns a list starting with the year string
+    followed by the name-rank strings in alphabetical order.
+    ['2006', 'Aaliyah 91', Aaron 57', 'Abagail 895', ' ...]
+    """
+    # +++your code here+++
+    list = []
+    # appends year to list
+    list.append(return_year(filename))
+    dict_rank_name = build_rank_name(filename)
+    # sorts dictionary and appends entries to list
+    for key in sorted(dict_rank_name): list.append("%s %s" % (key, dict_rank_name[key]))
+    return list
 
 
 def main():
-  # This command-line parsing code is provided.
-  # Make a list of command line arguments, omitting the [0] element
-  # which is the script itself.
-  args = sys.argv[1:]
+    # This command-line parsing code is provided.
+    # Make a list of command line arguments, omitting the [0] element
+    # which is the script itself.
+    args = sys.argv[1:]
 
-  if not args:
-    print 'usage: [--summaryfile] file [file ...]'
-    sys.exit(1)
+    if not args:
+        print 'usage: [--summaryfile] file [file ...]'
+        sys.exit(1)
 
-  # Notice the summary flag and remove it from args if it is present.
-  summary = False
-  if args[0] == '--summaryfile':
-    summary = True
-    del args[0]
+    # Notice the summary flag and remove it from args if it is present.
+    summary = False
+    if args[0] == '--summaryfile':
+        summary = True
+        del args[0]
 
-  # +++your code here+++
-  # For each filename, get the names, then either print the text output
-  # or write it to a summary file
-  
+    # +++your code here+++
+    # For each filename, get the names, then either print the text output
+    # or write it to a summary file
+    
+    if summary:
+        for html_file in args:
+            text = '\n' .join(extract_names(html_file)) + '\n'
+            output = open(html_file + '.summary', 'w')
+            output.write(text + '\n')
+            output.close()
+    else:
+        for html_file in args: print extract_names(html_file)
+
+
 if __name__ == '__main__':
-  main()
+    main()
